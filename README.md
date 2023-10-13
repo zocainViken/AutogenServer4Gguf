@@ -15,9 +15,9 @@ git clone https://github.com/zocainViken/AutogenServer4Gguf.git
 2. Ensure you have Python installed.
 3. Install the necessary requirements using the following command:
 
-
-pip install -r requirements.txt
-
+```bash
+python -m pip install -r requirements.txt
+```
 
 
 ## Usage
@@ -28,9 +28,9 @@ To use the API for generating chat completions, follow the steps below:
 then this folder path must be specified into config.py and that should do it.
 2. Run the Flask server by executing the following command:
 
-
+```bash
 python server.py
-
+```
 
 
 3. Access the server at the specified address and port to generate chat completions.
@@ -43,14 +43,15 @@ python server.py
 
 
 ## finale code to launch the server
-
+```bash
 pyton -m pip install -r requirements.txt
+```
+```bash
 python server.py
-
+```
 ## example of client side code
-
-## OAI_CONFIG_LIST example
-# set you're own model and the IP address maybe
+```json
+OAI_CONFIG_LIST example
 [
     {
         "model":"model0.gguf",
@@ -71,11 +72,11 @@ python server.py
         "api_key": "NULL"
     }
 ]
-
+```
 
 
 ## Python part 
-
+```python
 from autogen import AssistantAgent, UserProxyAgent, config_list_from_json
 
 # Load LLM inference endpoints from an env variable or a file
@@ -105,7 +106,7 @@ user_proxy = UserProxyAgent(
 
 user_proxy.initiate_chat(assistant, message="Plot a chart of NVDA and TESLA stock price change YTD.")
 # This initiates an automated chat between the two agents to solve the task
-
+```
 
 ## License
 
