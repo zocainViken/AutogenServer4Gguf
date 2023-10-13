@@ -8,8 +8,9 @@ To set up the project, follow the steps below:
 
 1. Clone the repository to your local machine.
 
+```bash
 git clone https://github.com/zocainViken/AutogenServer4Gguf.git
-
+```
 
 2. Ensure you have Python installed.
 3. Install the necessary requirements using the following command:
