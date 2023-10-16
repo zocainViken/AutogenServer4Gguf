@@ -44,7 +44,7 @@ python server.py
 
 ## finale code to launch the server
 ```bash
-pyton -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 ```bash
 python server.py
@@ -115,7 +115,7 @@ do what you can
 
 
 
-
+# Credits
 ## https://github.com/ggerganov/llama.cpp
 ## https://github.com/abetlen/llama-cpp-python
 ## https://github.com/microsoft/autogen
