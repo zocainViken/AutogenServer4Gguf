@@ -2,12 +2,63 @@
 from llama_cpp import Llama
 import os
 from flask import Flask, request, jsonify, redirect
-from config import model_path
+from config import model_path, MODEL
 
 app = Flask(__name__)
 
-#model_path = 'F:/path/to/ur/folder/'# folder must contain only .gguf
-model_path = model_path
+
+def talk(llm, dialog, stop, max_tokens=4096, temperature=0):
+    output = llm(
+        f"{dialog}",
+        max_tokens=int(max_tokens),
+        stop=stop,
+        echo=True,
+        temperature=temperature
+    )
+    # remove input from output
+    output['choices'][0]['text'] = output['choices'][0]['text'][len(dialog):]
+    
+    return output
+
+def tweaked_talk(llm, dialog, stop, data, idx, max_tokens=4096, temperature=0):
+    def slicer(data, idx):
+        similarity = ''
+        prepromt = ''
+        dialogue = ''
+        for index, item in enumerate(data['messages']):
+            if str(item) != similarity:
+                similarity = str(item)
+                if index == 0:
+                    prepromt = f"role: {item['role']}\n{item['content']}\n\n"
+                elif index <= idx and index >= 2:
+                    dialogue = dialogue + ''
+                else:
+                    dialogue = dialogue + f"role: {item['role']}\n{item['content']}\n\n"
+            else:
+                pass
+
+        dialogue = prepromt + dialogue
+        return dialogue  # Return the updated 'dialogue' variable
+
+    v = idx
+    # Check token size
+    for i in range(0, 90):
+        if len(llm.tokenize(slicer(data, v).encode())) >= 4096 and v < len(data['messages']):
+            v *= 2  # Update the value of 'v' in the loop
+            text = slicer(data, v).encode()
+            vtc = len(llm.tokenize(text))
+            
+        else:
+            break
+
+    dialogue = slicer(data, v)
+    print('\ntweaked dialogue: \n', dialogue)
+    print('#############################################################################\n#############################################################################\n\n\n')
+    output = talk(llm, dialogue, stop, max_tokens, temperature)
+    return output
+
+
+
 
 @app.route('/available_models', methods=['POST'])
 def models_available():
@@ -18,25 +69,29 @@ def models_available():
 def autogen():
     # I don't know why it must to be here, but hey who cares
     print('autogen server connected')
-    return redirect("/autogen/chat/completions")
-
+    return 'autogen server connected'
 
 
 @app.route('/autogen/chat/completions', methods=['POST', 'GET'])
 def autogen_chat_completion():
     # so basicaly the main function to create completions
     data=request.json
-    #print("input data: \n", data)
-    #print()
 
     if data['model']:
         model_name = data['model']
     else:
-        model_name = "model.gguf"
+        model_name = MODEL
     print('model name: ' + model_name)
     print()
 
-    temperature = data['temperature']
+    # Check if the 'model' key exists in the data dictionary
+    if 'temperature' in data:
+        # The 'model' key is present, so you can safely access its value
+        temperature = data['temperature']
+    else:
+        # Handle the case when 'model' key is not present
+        temperature = 0
+
     max_tokens = 4096
     stop = []
 
@@ -44,31 +99,27 @@ def autogen_chat_completion():
     messages = data['messages']
     
     for i in messages:
-        #print(i['role'].replace('\n\n', ''))
         dialogue = dialogue + i['role'].replace('\n', '') + ':\n'
-        #print(i['content'].replace('\n\n', ''))
         dialogue = dialogue + i['content'].replace('\n\n', '')
         dialogue = dialogue + '\n\n\n'
     
-    print('dialogue:\n', dialogue)
-    print()
+    llm = Llama(model_path=model_path+MODEL)
+    context = int(len(llm.tokenize(dialogue.encode())))
 
-    llm = Llama(model_path=model_path+model_name)
-    output = llm(
-        f"{dialogue}",
-        max_tokens=int(max_tokens),
-        stop=stop,
-        echo=True,
-        temperature=temperature
-    )
+    idx = 3
+    if context <= max_tokens - 1:
+        
+        print('\nstandard dialogue: \n', dialogue)
+        print('#############################################################################\n#############################################################################\n\n\n')
+        output = talk(llm, dialogue, stop, max_tokens, temperature)
+        return jsonify(output)
     
-    print('output:')
-    print()
-    print(jsonify(output))
-    print('\n\n\n\n')
+    else:
+        print('too much tokens, sorry but the start of you\'re chat will be ignored')
     
-    return jsonify(output)
-    
+        output = tweaked_talk(llm, dialogue, stop, data, idx, max_tokens, temperature)
+        return jsonify(output)
+
 
 
 
@@ -76,8 +127,4 @@ def autogen_chat_completion():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, )
-
-
-
-
 
