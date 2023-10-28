@@ -17,6 +17,7 @@ def talk(llm, dialog, stop, max_tokens=4096, temperature=0):
     )
     # remove input from output
     output['choices'][0]['text'] = output['choices'][0]['text'][len(dialog):]
+    output['choices'][0]['message'] = output['choices'][0]['text']
     
     return output
 
