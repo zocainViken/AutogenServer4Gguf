@@ -104,7 +104,7 @@ def autogen_chat_completion():
         dialogue = dialogue + i['content'].replace('\n\n', '')
         dialogue = dialogue + '\n\n\n'
     
-    llm = Llama(model_path=model_path+MODEL)
+    llm = Llama(model_path=model_path+model_name)
     context = int(len(llm.tokenize(dialogue.encode())))
 
     idx = 3
