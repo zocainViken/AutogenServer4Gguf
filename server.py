@@ -60,7 +60,8 @@ def tweaked_talk(llm, dialog, stop, data, idx, max_tokens=4096, temperature=0):
 
 
 
-
+@app.route('/v1/models', methods=['POST', 'GET'])
+@app.route('/models', methods=['POST', 'GET'])
 @app.route('/available_models', methods=['POST'])
 def models_available():
     # return a list of models available
@@ -72,7 +73,18 @@ def autogen():
     print('autogen server connected')
     return 'autogen server connected'
 
+# openai api 
+# /v1/embeddings
+# /images/create_variation
+# /images/generate
+# /v1/audio/speech
+# /v1/audio/transcriptions # -> speech to text whisper.cpp ?
+# /v1/audio/translations
+# /v1/chat/completions
 
+@app.route('/v1/completions', methods=['POST'])
+@app.route('/completions', methods=['POST'])
+@app.route('/v1/chat/completions', methods=['POST'])
 @app.route('/autogen/chat/completions', methods=['POST', 'GET'])
 def autogen_chat_completion():
     # so basicaly the main function to create completions
