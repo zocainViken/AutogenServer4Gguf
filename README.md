@@ -42,10 +42,13 @@ python server.py
 3. `/autogen/chat/completions` - This endpoint is used to create completions based on the input data.
 
 
+## configuration of config.py
+- model_path = 'F:/path/to/ur/folder/'# folder must contain only .gguf
+- model = 'model.gguf'
+- chat_format = "chat-format"
+
 ## finale code to launch the server
-```bash
-python -m pip install -r requirements.txt
-```
+
 ```bash
 python server.py
 ```
